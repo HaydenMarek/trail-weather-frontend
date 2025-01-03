@@ -61,7 +61,15 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await _caller.GetTrailWeather(range);
+        try
+        {
+            forecasts = await _caller.GetTrailWeather(range);
+        }
+        catch (HttpRequestException ex) 
+        {
+            Console.WriteLine(ex.Message);
+            forecasts = new List<ForecastDTO>();            
+        }
     }    
 
     private string GetImageSourcePath(int weatherCode)
@@ -75,7 +83,7 @@ else
 
     private async Task GetTrailWeather()
     {
-        forecasts = await _caller.GetTrailWeather(range);
+        forecasts = await _caller.GetTrailWeather(range);        
     }
 
     private async Task HandleKeyUp(KeyboardEventArgs e)
