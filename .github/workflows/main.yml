@@ -1,0 +1,41 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Publish
+
+on:
+  push: 
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: trail-weather-web
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: '9.x'
+          include-prerelease: false
+      - name: Restore
+        run: dotnet restore ./trail-weather-frontend.sln
+        
+      - name: Build with dotnet
+        run: dotnet build ./trail-weather-frontend.sln --configuration Release --no-restore
+
+      - name: Publish
+        run: dotnet publish ./trail-weather-frontend.sln --configuration Release --no-build --output './publish'
+
+      - name: Deployment
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }} 
+          publish-profile: ${{ secrets.AZURE_PUBLISH_PROFILE }}
+          package: './publish'
